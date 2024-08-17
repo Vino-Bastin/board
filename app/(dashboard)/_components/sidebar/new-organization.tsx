@@ -24,7 +24,7 @@ export const NewOrganization = () => {
         </DialogTrigger>
       </Hint>
       <DialogContent className="p-0 bg-white border-none max-w-[432px]">
-        <CreateOrganization />
+        <CreateOrganization routing="hash" />
       </DialogContent>
     </Dialog>
   );
