@@ -2,21 +2,24 @@
 
 import { useOrganization } from "@clerk/nextjs";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 import { useCreateBoard } from "@/hooks/api/use-create-board";
 import { Button } from "@/components/ui/button";
 
 export function CreateBoard() {
+  const router = useRouter();
   const { organization } = useOrganization();
   const { isPending, createBoard } = useCreateBoard();
 
   const handleClick = () => {
     if (!organization) return;
     createBoard(organization.id, `untitled`)
-      .then((board) => {
+      .then((boardId) => {
         toast.success("Board created");
+        router.push(`/board/${boardId}`);
       })
-      .catch((error) => toast.error("Failed to create board"));
+      .catch(() => toast.error("Failed to create board"));
   };
 
   return (

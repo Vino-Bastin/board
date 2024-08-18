@@ -1,6 +1,7 @@
 "use client";
 import { Plus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 import { useCreateBoard } from "@/hooks/api/use-create-board";
 import { cn } from "@/lib/utils";
@@ -12,13 +13,15 @@ interface NewBoardCardProps {
 
 export function NewBoardCard({ organizationId, disabled }: NewBoardCardProps) {
   const { isPending, createBoard } = useCreateBoard();
+  const router = useRouter();
 
   const handleClick = () => {
     createBoard(organizationId, `untitled`)
-      .then((board) => {
+      .then((boardId) => {
         toast.success("Board created");
+        router.push(`/board/${boardId}`);
       })
-      .catch((error) => toast.error("Failed to create board"));
+      .catch(() => toast.error("Failed to create board"));
   };
 
   return (
