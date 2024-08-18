@@ -78,8 +78,7 @@ export function BoardList({ organizationId, query }: BoardListProps) {
             authorId={board.authorId}
             authorName={board.authorName}
             createdAt={board._creationTime}
-            organizationId={board.organizationId}
-            isFavorite={true}
+            isFavorite={board.isFavorite}
           />
         ))}
       </div>

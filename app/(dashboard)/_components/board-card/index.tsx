@@ -15,7 +15,6 @@ interface BoardCardProps {
   authorId: string;
   authorName: string;
   createdAt: number;
-  organizationId: string;
   isFavorite: boolean;
 }
 
@@ -26,7 +25,6 @@ export function BoardCard({
   authorId,
   authorName,
   createdAt,
-  organizationId,
   isFavorite,
 }: BoardCardProps) {
   const { userId } = useAuth();
@@ -53,8 +51,7 @@ export function BoardCard({
           authorLabel={authorLabel}
           createdAtLabel={createdAtLabel}
           isFavorite={isFavorite}
-          disabled={false}
-          onClick={() => {}}
+          id={id}
         />
       </div>
     </Link>
