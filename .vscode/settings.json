@@ -2,5 +2,5 @@
   "editor.formatOnSave": true,
   "editor.tabSize": 2,
   "editor.wordWrap": "on",
-  "cSpell.words": ["lucide", "nextjs", "sonner", "trpc", "usehooks"]
+  "cSpell.words": ["lucide", "nextjs", "sonner", "trpc", "usehooks", "zustand"]
 }

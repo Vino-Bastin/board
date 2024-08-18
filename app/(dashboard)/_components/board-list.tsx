@@ -24,7 +24,7 @@ export function BoardList({ organizationId, query }: BoardListProps) {
         <h2 className="text-2xl font-medium">
           {query.favorite ? "Favorite Boards" : "Team Boards"}
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-5 pb-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-5 pt-5">
           <NewBoardCard organizationId={organizationId} disabled />
           <BoardSkeleton />
           <BoardSkeleton />
@@ -67,7 +67,7 @@ export function BoardList({ organizationId, query }: BoardListProps) {
       <h2 className="text-2xl font-medium">
         {query.favorite ? "Favorite Boards" : "Team Boards"}
       </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-5 pb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-5 pt-5">
         <NewBoardCard organizationId={organizationId} />
         {data?.map((board) => (
           <BoardCard
