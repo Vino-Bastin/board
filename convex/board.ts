@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 
-import { mutation } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
 
 const images = [
   "/placeholders/1.svg",
@@ -22,15 +22,13 @@ export const create = mutation({
 
     const randomImage = images[Math.floor(Math.random() * images.length)];
 
-    const board = await ctx.db.insert("board", {
+    return await ctx.db.insert("board", {
       title: args.title,
       organizationId: args.organizationId,
       imageUrl: randomImage,
       authorId: identity.subject,
       authorName: identity.name!,
     });
-
-    return board;
   },
 });
 
@@ -45,7 +43,7 @@ export const remove = mutation({
     const favorite = await ctx.db
       .query("userFavorite")
       .withIndex("by_user_board", (q) =>
-        q.eq("userId", identity.subject).eq("boardId", args.id)
+        q.eq("userId", identity.subject).eq("boardId", args.id),
       )
       .unique();
 
@@ -70,9 +68,7 @@ export const update = mutation({
     if (title.length > 60)
       throw new Error("Title cannot exceed be longer than 60 characters");
 
-    const board = await ctx.db.patch(args.id, { title });
-
-    return board;
+    return await ctx.db.patch(args.id, { title });
   },
 });
 
@@ -92,7 +88,7 @@ export const favorite = mutation({
     const existingFavorite = await ctx.db
       .query("userFavorite")
       .withIndex("by_user_board", (q) =>
-        q.eq("userId", userId).eq("boardId", args.id)
+        q.eq("userId", userId).eq("boardId", args.id),
       )
       .unique();
 
@@ -124,7 +120,7 @@ export const unFavorite = mutation({
     const favorite = await ctx.db
       .query("userFavorite")
       .withIndex("by_user_board", (q) =>
-        q.eq("userId", userId).eq("boardId", args.id)
+        q.eq("userId", userId).eq("boardId", args.id),
       )
       .unique();
 
@@ -133,5 +129,14 @@ export const unFavorite = mutation({
     await ctx.db.delete(favorite._id);
 
     return true;
+  },
+});
+
+export const get = query({
+  args: {
+    id: v.id("board"),
+  },
+  handler: async (ctx, arg) => {
+    return ctx.db.get(arg.id);
   },
 });
