@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { DropdownMenuContentProps } from "@radix-ui/react-dropdown-menu";
 import { Link2, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -22,6 +23,7 @@ interface ActionsProps {
   sideOffset?: DropdownMenuContentProps["sideOffset"];
   id: string;
   title: string;
+  redirectOnDeletion?: boolean;
 }
 
 export function Actions({
@@ -30,7 +32,9 @@ export function Actions({
   sideOffset,
   id,
   title,
+  redirectOnDeletion,
 }: ActionsProps) {
+  const router = useRouter();
   const { isPending, remove } = useDeleteBoard();
   const { open } = useBoardRenameModal();
 
@@ -43,7 +47,10 @@ export function Actions({
 
   const onDelete = () => {
     remove(id)
-      .then(() => toast.success("Board deleted"))
+      .then(() => {
+        toast.success("Board deleted");
+        if (redirectOnDeletion) router.push("/");
+      })
       .catch(() => toast.error("Failed to delete board"));
   };
 

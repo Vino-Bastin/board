@@ -38,7 +38,7 @@ export const Info = ({ boardId }: InfoProps) => {
             <span
               className={cn(
                 "ml-2 font-semibold text-xl text-black",
-                font.className,
+                font.className
               )}
             >
               Board
@@ -57,13 +57,13 @@ export const Info = ({ boardId }: InfoProps) => {
         </Button>
       </Hint>
       <div className="px-1.5 text-neutral-300">|</div>
-      <Actions id={data._id} title={data.title}>
-        <Hint label="Main menu" side="bottom" sideOffset={10}>
+      <Hint label="Main menu" side="bottom" sideOffset={10}>
+        <Actions id={data._id} title={data.title} redirectOnDeletion>
           <Button variant="board" className="px-2">
             <Menu />
           </Button>
-        </Hint>
-      </Actions>
+        </Actions>
+      </Hint>
     </div>
   );
 };
