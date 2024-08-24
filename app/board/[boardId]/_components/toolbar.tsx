@@ -10,7 +10,7 @@ import {
   Type,
   Undo2,
 } from "lucide-react";
-import { useHistory } from "@liveblocks/react";
+import { useCanRedo, useCanUndo, useHistory } from "@liveblocks/react";
 
 import { CanvasMode, LayerType } from "@/types/canvas";
 
@@ -20,6 +20,8 @@ import { useCanvasStore } from "@/store/use-canvas-store";
 export const Toolbar = () => {
   const { canvasState, setCanvasState } = useCanvasStore();
   const history = useHistory();
+  const canUndo = useCanUndo();
+  const canRedo = useCanRedo();
 
   return (
     <div className="absolute top-[50%] -translate-y-[50%] left-2 flex flex-col gap-y-4">
@@ -69,7 +71,7 @@ export const Toolbar = () => {
           }
         />
         <ToolButton
-          label="Rectange"
+          label="Rectangle"
           icon={Square}
           onClick={() =>
             setCanvasState({
@@ -112,13 +114,13 @@ export const Toolbar = () => {
           label="Undo"
           icon={Undo2}
           onClick={history.undo}
-          isDisabled={!history.canUndo()}
+          isDisabled={!canUndo}
         />
         <ToolButton
           label="Redo"
           icon={Redo2}
           onClick={history.redo}
-          isDisabled={!history.canRedo()}
+          isDisabled={!canRedo}
         />
       </div>
     </div>

@@ -78,6 +78,13 @@ export type NoteLayer = {
   value?: string;
 };
 
+export type Layer =
+  | RectangleLayer
+  | EllipseLayer
+  | PathLayer
+  | TextLayer
+  | NoteLayer;
+
 export type Point = {
   x: number;
   y: number;
