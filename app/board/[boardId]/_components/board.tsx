@@ -1,13 +1,18 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { nanoid } from "nanoid";
-import { useHistory, useMutation, useStorage } from "@liveblocks/react";
+import {
+  useHistory,
+  useMutation,
+  useOthersMapped,
+  useStorage,
+} from "@liveblocks/react";
 import { LiveObject } from "@liveblocks/client";
 
 import { useCanvasStore } from "@/store/use-canvas-store";
 import { Camera, Color, Point, LayerType, CanvasMode } from "@/types/canvas";
-import { pointerEventToCanvasPoint } from "@/lib/utils";
+import { connectionIdToColor, pointerEventToCanvasPoint } from "@/lib/utils";
 
 import { CursorsPresence } from "./cursors-presence";
 import { LayerPreview } from "./layer-preview";
@@ -25,6 +30,30 @@ export function Board() {
   });
   const history = useHistory();
 
+  // * mouse scroll
+  const onWheel = useCallback((e: React.WheelEvent) => {
+    setCamera((camera) => ({
+      x: camera.x - e.deltaX,
+      y: camera.y - e.deltaY,
+    }));
+  }, []);
+
+  // * cursor tracking
+  const onPointerMove = useMutation(
+    ({ setMyPresence }, e: React.PointerEvent) => {
+      e.preventDefault();
+      const cursor = pointerEventToCanvasPoint(e, camera);
+      setMyPresence({ cursor });
+    },
+    []
+  );
+
+  // * user left the canvas (moved to other tab)
+  const onPointerLeave = useMutation(({ setMyPresence }) => {
+    setMyPresence({ cursor: null });
+  }, []);
+
+  // * create a new layer
   const insertLayer = useMutation(
     (
       { storage, setMyPresence },
@@ -58,26 +87,7 @@ export function Board() {
     [lastUsedColor]
   );
 
-  const onWheel = useCallback((e: React.WheelEvent) => {
-    setCamera((camera) => ({
-      x: camera.x - e.deltaX,
-      y: camera.y - e.deltaY,
-    }));
-  }, []);
-
-  const onPointerMove = useMutation(
-    ({ setMyPresence }, e: React.PointerEvent) => {
-      e.preventDefault();
-      const cursor = pointerEventToCanvasPoint(e, camera);
-      setMyPresence({ cursor });
-    },
-    []
-  );
-
-  const onPointerLeave = useMutation(({ setMyPresence }) => {
-    setMyPresence({ cursor: null });
-  }, []);
-
+  // * user clicked on the canvas to create a new layer
   const onPointerUp = useMutation(
     ({}, e) => {
       const point = pointerEventToCanvasPoint(e, camera);
@@ -90,6 +100,42 @@ export function Board() {
       history.resume();
     },
     [camera, canvasState, history, insertLayer]
+  );
+
+  // * listen to other users' selections
+  const selections = useOthersMapped((other) => other.presence.selection);
+  const layerIdsToColorSelection = useMemo(() => {
+    const layerIdsToColorSelection: Record<string, string> = {};
+    for (const user of selections) {
+      const [connectionId, selection] = user;
+      for (const layerId of selection) {
+        layerIdsToColorSelection[layerId] = connectionIdToColor(connectionId);
+      }
+    }
+    return layerIdsToColorSelection;
+  }, [selections]);
+
+  // * send my selection
+  const onLayerPointerDown = useMutation(
+    ({ self, setMyPresence }, e: React.PointerEvent, layerId: string) => {
+      if (
+        canvasState.mode === CanvasMode.Pencil ||
+        canvasState.mode === CanvasMode.Inserting
+      ) {
+        return;
+      }
+
+      history.pause();
+      e.stopPropagation();
+
+      const point = pointerEventToCanvasPoint(e, camera);
+      if (!self.presence.selection.includes(layerId)) {
+        setMyPresence({ selection: [layerId] }, { addToHistory: true });
+      }
+
+      setCanvasState({ mode: CanvasMode.Translating, current: point });
+    },
+    []
   );
 
   return (
@@ -110,7 +156,7 @@ export function Board() {
             key={layerId}
             id={layerId}
             onLayerPointerDown={() => {}}
-            selectionColor="#000"
+            selectionColor={layerIdsToColorSelection[layerId]}
           />
         ))}
         <CursorsPresence />

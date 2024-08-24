@@ -1,3 +1,4 @@
+import { RGBToHex } from "@/lib/utils";
 import { RectangleLayer } from "@/types/canvas";
 
 interface RectangleProps {
@@ -26,8 +27,8 @@ export function Rectangle({
       width={width}
       height={height}
       strokeWidth={1}
-      fill="#000"
-      stroke="transparent"
+      fill={fill ? RGBToHex(fill) : "#CCC"}
+      stroke={selectionColor || "transparent"}
     />
   );
 }
