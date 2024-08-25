@@ -1,7 +1,7 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
-import { Camera, Color } from "@/types/canvas";
+import { Camera, Color, Point, Side, XYWH } from "@/types/canvas";
 
 const colors = [
   "#DC2626",
@@ -32,4 +32,28 @@ export function pointerEventToCanvasPoint(
 
 export function RGBToHex(color: Color): string {
   return `#${color.r.toString(16).padStart(2, "0")}${color.g.toString(16).padStart(2, "0")}${color.b.toString(16).padStart(2, "0")}`;
+}
+
+export function resizeBounds(bounds: XYWH, corner: Side, point: Point): XYWH {
+  const { x, y, width, height } = bounds;
+  const result = { x, y, width, height };
+
+  if ((corner && Side.Left) === Side.Left) {
+    result.x = Math.min(point.x, x + width);
+    result.width = Math.abs(x + width - point.x);
+  }
+  if ((corner && Side.Right) === Side.Right) {
+    result.x = Math.min(x, point.x);
+    result.width = Math.abs(point.x - x);
+  }
+  if ((corner && Side.Top) === Side.Top) {
+    result.y = Math.min(point.y, y + height);
+    result.height = Math.abs(y + height - point.y);
+  }
+  if ((corner && Side.Bottom) === Side.Bottom) {
+    result.y = Math.min(y, point.y);
+    result.height = Math.abs(point.y - y);
+  }
+
+  return result;
 }

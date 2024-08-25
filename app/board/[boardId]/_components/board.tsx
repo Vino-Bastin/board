@@ -11,11 +11,24 @@ import {
 import { LiveObject } from "@liveblocks/client";
 
 import { useCanvasStore } from "@/store/use-canvas-store";
-import { Camera, Color, Point, LayerType, CanvasMode } from "@/types/canvas";
-import { connectionIdToColor, pointerEventToCanvasPoint } from "@/lib/utils";
+import {
+  connectionIdToColor,
+  pointerEventToCanvasPoint,
+  resizeBounds,
+} from "@/lib/utils";
+import {
+  Camera,
+  Color,
+  Point,
+  LayerType,
+  CanvasMode,
+  Side,
+  XYWH,
+} from "@/types/canvas";
 
 import { CursorsPresence } from "./cursors-presence";
 import { LayerPreview } from "./layer-preview";
+import { SelectionBox } from "./selection-box";
 
 const MAX_LAYERS = 100;
 
@@ -29,29 +42,6 @@ export function Board() {
     b: 0,
   });
   const history = useHistory();
-
-  // * mouse scroll
-  const onWheel = useCallback((e: React.WheelEvent) => {
-    setCamera((camera) => ({
-      x: camera.x - e.deltaX,
-      y: camera.y - e.deltaY,
-    }));
-  }, []);
-
-  // * cursor tracking
-  const onPointerMove = useMutation(
-    ({ setMyPresence }, e: React.PointerEvent) => {
-      e.preventDefault();
-      const cursor = pointerEventToCanvasPoint(e, camera);
-      setMyPresence({ cursor });
-    },
-    []
-  );
-
-  // * user left the canvas (moved to other tab)
-  const onPointerLeave = useMutation(({ setMyPresence }) => {
-    setMyPresence({ cursor: null });
-  }, []);
 
   // * create a new layer
   const insertLayer = useMutation(
@@ -86,6 +76,62 @@ export function Board() {
     },
     [lastUsedColor]
   );
+
+  // * resize the selection event handler
+  const onResizeHandlePointerDown = useCallback(
+    (corner: Side, initialBounds: XYWH) => {
+      history.pause();
+      setCanvasState({
+        mode: CanvasMode.Resizing,
+        corner,
+        initialBounds,
+      });
+    },
+    [history, setCanvasState]
+  );
+
+  // * resize the selection
+  const resizeSelectedLayer = useMutation(
+    ({ self, storage }, point: Point) => {
+      if (canvasState.mode !== CanvasMode.Resizing) return;
+      const bounds = resizeBounds(
+        canvasState.initialBounds,
+        canvasState.corner,
+        point
+      );
+
+      const liveLayers = storage.get("layers");
+      const layer = liveLayers.get(self.presence.selection[0]);
+
+      if (layer) layer.update(bounds);
+    },
+    [canvasState]
+  );
+
+  // * mouse scroll
+  const onWheel = useCallback((e: React.WheelEvent) => {
+    setCamera((camera) => ({
+      x: camera.x - e.deltaX,
+      y: camera.y - e.deltaY,
+    }));
+  }, []);
+
+  // * cursor tracking
+  const onPointerMove = useMutation(
+    ({ setMyPresence }, e: React.PointerEvent) => {
+      e.preventDefault();
+      const cursor = pointerEventToCanvasPoint(e, camera);
+      // * resizing the selection
+      if (canvasState.mode === CanvasMode.Resizing) resizeSelectedLayer(cursor);
+      setMyPresence({ cursor });
+    },
+    [canvasState, resizeSelectedLayer, camera]
+  );
+
+  // * user left the canvas (moved to other tab)
+  const onPointerLeave = useMutation(({ setMyPresence }) => {
+    setMyPresence({ cursor: null });
+  }, []);
 
   // * user clicked on the canvas to create a new layer
   const onPointerUp = useMutation(
@@ -155,10 +201,11 @@ export function Board() {
           <LayerPreview
             key={layerId}
             id={layerId}
-            onLayerPointerDown={() => {}}
+            onLayerPointerDown={onLayerPointerDown}
             selectionColor={layerIdsToColorSelection[layerId]}
           />
         ))}
+        <SelectionBox onResizeHandlePointerDown={onResizeHandlePointerDown} />
         <CursorsPresence />
       </g>
     </svg>
