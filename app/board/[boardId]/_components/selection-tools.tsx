@@ -2,7 +2,7 @@
 
 import { memo, useState } from "react";
 import { useMutation, useSelf } from "@liveblocks/react";
-import { Trash2 } from "lucide-react";
+import { BringToFrontIcon, SendToBack, Trash2 } from "lucide-react";
 
 import { useSelectionBounds } from "@/hooks/use-selection-bounds";
 import { useDeleteLayers } from "@/hooks/use-delete-layers";
@@ -24,6 +24,48 @@ export const SelectionTools = memo(
     const selection = useSelf((me) => me.presence.selection);
     const selectedBounds = useSelectionBounds();
     const deleteLayers = useDeleteLayers();
+
+    // * move to back
+    const moveBack = useMutation(
+      ({ storage }) => {
+        const liverLayerIds = storage.get("layerIds");
+        const indices: number[] = [];
+
+        const array = liverLayerIds.toArray();
+        for (let i = 0; i < array.length; i++) {
+          if (selection?.includes(array[i])) {
+            indices.push(i);
+          }
+        }
+
+        for (let i = 0; i < indices.length; i++) {
+          liverLayerIds.move(indices[i], i);
+        }
+      },
+      [selection]
+    );
+
+    // * move to front
+    const moveFront = useMutation(
+      ({ storage }) => {
+        const liverLayerIds = storage.get("layerIds");
+        const indices: number[] = [];
+
+        const array = liverLayerIds.toArray();
+        for (let i = 0; i < array.length; i++) {
+          if (selection?.includes(array[i])) {
+            indices.push(i);
+          }
+        }
+
+        for (let i = indices.length - 1; i >= 0; i--) {
+          liverLayerIds.move(indices[i], liverLayerIds.length - 1);
+        }
+      },
+      [selection]
+    );
+
+    // * Set fill color
     const setFill = useMutation(
       ({ storage }, e: React.ChangeEvent<HTMLInputElement>) => {
         setColor(e.target.value);
@@ -57,6 +99,18 @@ export const SelectionTools = memo(
             value={color}
             onChange={setFill}
           />
+        </div>
+        <div className="flex flex-col gap-y-0.5">
+          <Hint label="Bring to front" sideOffset={16}>
+            <Button size="icon" variant="board" onClick={moveFront}>
+              <BringToFrontIcon />
+            </Button>
+          </Hint>
+          <Hint label="Send to back" side="bottom" sideOffset={16}>
+            <Button size="icon" variant="board" onClick={moveBack}>
+              <SendToBack />
+            </Button>
+          </Hint>
         </div>
         <div className="flex items-center border-1">
           <Hint label="delete" sideOffset={16}>
