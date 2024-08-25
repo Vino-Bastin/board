@@ -100,7 +100,7 @@ export const SelectionTools = memo(
             onChange={setFill}
           />
         </div>
-        <div className="flex flex-col gap-y-0.5">
+        <div className="flex gap-y-0.5 mr-2 pr-2 border-r">
           <Hint label="Bring to front" sideOffset={16}>
             <Button size="icon" variant="board" onClick={moveFront}>
               <BringToFrontIcon />
