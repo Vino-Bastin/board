@@ -29,6 +29,7 @@ import {
 import { CursorsPresence } from "./cursors-presence";
 import { LayerPreview } from "./layer-preview";
 import { SelectionBox } from "./selection-box";
+import { SelectionTools } from "./selection-tools";
 
 const MAX_LAYERS = 100;
 
@@ -245,30 +246,33 @@ export function Board() {
   );
 
   return (
-    <svg
-      className="h-[100vh] w-[100vw]"
-      onWheel={onWheel}
-      onPointerMove={onPointerMove}
-      onPointerLeave={onPointerLeave}
-      onPointerUp={onPointerUp}
-      onPointerDown={onPointerDown}
-    >
-      <g
-        style={{
-          transform: `translateX(${camera.x}px) translateY(${camera.y}px)`,
-        }}
+    <>
+      <SelectionTools camera={camera} setLastUsedColor={setLastUsedColor} />
+      <svg
+        className="h-[100vh] w-[100vw]"
+        onWheel={onWheel}
+        onPointerMove={onPointerMove}
+        onPointerLeave={onPointerLeave}
+        onPointerUp={onPointerUp}
+        onPointerDown={onPointerDown}
       >
-        {layerIds?.map((layerId) => (
-          <LayerPreview
-            key={layerId}
-            id={layerId}
-            onLayerPointerDown={onLayerPointerDown}
-            selectionColor={layerIdsToColorSelection[layerId]}
-          />
-        ))}
-        <SelectionBox onResizeHandlePointerDown={onResizeHandlePointerDown} />
-        <CursorsPresence />
-      </g>
-    </svg>
+        <g
+          style={{
+            transform: `translateX(${camera.x}px) translateY(${camera.y}px)`,
+          }}
+        >
+          {layerIds?.map((layerId) => (
+            <LayerPreview
+              key={layerId}
+              id={layerId}
+              onLayerPointerDown={onLayerPointerDown}
+              selectionColor={layerIdsToColorSelection[layerId]}
+            />
+          ))}
+          <SelectionBox onResizeHandlePointerDown={onResizeHandlePointerDown} />
+          <CursorsPresence />
+        </g>
+      </svg>
+    </>
   );
 }

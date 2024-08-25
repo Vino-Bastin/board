@@ -34,6 +34,15 @@ export function RGBToHex(color: Color): string {
   return `#${color.r.toString(16).padStart(2, "0")}${color.g.toString(16).padStart(2, "0")}${color.b.toString(16).padStart(2, "0")}`;
 }
 
+export function hexToRGB(hex: string): Color {
+  const hexValue = hex.replace("#", "");
+  return {
+    r: parseInt(hexValue.substring(0, 2), 16),
+    g: parseInt(hexValue.substring(2, 4), 16),
+    b: parseInt(hexValue.substring(4, 6), 16),
+  };
+}
+
 export function resizeBounds(bounds: XYWH, corner: Side, point: Point): XYWH {
   const { x, y, width, height } = bounds;
   const result = { x, y, width, height };
