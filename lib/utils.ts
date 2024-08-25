@@ -38,19 +38,19 @@ export function resizeBounds(bounds: XYWH, corner: Side, point: Point): XYWH {
   const { x, y, width, height } = bounds;
   const result = { x, y, width, height };
 
-  if ((corner && Side.Left) === Side.Left) {
+  if ((corner & Side.Left) === Side.Left) {
     result.x = Math.min(point.x, x + width);
     result.width = Math.abs(x + width - point.x);
   }
-  if ((corner && Side.Right) === Side.Right) {
+  if ((corner & Side.Right) === Side.Right) {
     result.x = Math.min(x, point.x);
     result.width = Math.abs(point.x - x);
   }
-  if ((corner && Side.Top) === Side.Top) {
+  if ((corner & Side.Top) === Side.Top) {
     result.y = Math.min(point.y, y + height);
     result.height = Math.abs(y + height - point.y);
   }
-  if ((corner && Side.Bottom) === Side.Bottom) {
+  if ((corner & Side.Bottom) === Side.Bottom) {
     result.y = Math.min(y, point.y);
     result.height = Math.abs(point.y - y);
   }
