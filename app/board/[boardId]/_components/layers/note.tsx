@@ -5,7 +5,7 @@ import { useMutation } from "@liveblocks/react";
 import { Kalam } from "next/font/google";
 import ContentEditable, { ContentEditableEvent } from "react-contenteditable";
 
-import { NoteLayer, TextLayer } from "@/types/canvas";
+import { NoteLayer } from "@/types/canvas";
 import { cn, getContrastingTextColor, RGBToHex } from "@/lib/utils";
 
 const font = Kalam({

@@ -1,12 +1,14 @@
 import { LiveList, LiveMap, LiveObject } from "@liveblocks/client";
 
-import { Layer } from "@/types/canvas";
+import { Color, Layer } from "@/types/canvas";
 
 declare global {
   interface Liveblocks {
     Presence: {
       cursor: { x: number; y: number } | null;
       selection: string[];
+      pencilDraft: [x: number, y: number, pressure: number][] | null;
+      penColor: Color | null;
     };
 
     Storage: {
